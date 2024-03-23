@@ -1,16 +1,14 @@
-'use server'
-
+import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma'
 import { openai } from '@/lib/openai'
 import { type Course } from '@prisma/client'
 import { ratelimit } from '@/lib/utils'
 
-export async function searchPokedex(
-  query: string
-): Promise<Array<Course & { similarity: number }>> {
-  try {
-    if (query.trim().length === 0) return []
+export async function GET(request: Request) {
 
+  try {
+    const { searchParams } = new URL(request.url)
+    const query = searchParams.get('query') as string;
     const { success } = await ratelimit.limit('generations')
     if (!success) throw new Error('Rate limit exceeded')
 
@@ -24,7 +22,7 @@ export async function searchPokedex(
       FROM courses
       where 1 - (embedding <=> ${vectorQuery}::vector) > .5
       ORDER BY  similarity DESC
-      LIMIT 8;
+      LIMIT 5;
     `
 
     return course as Array<Course & { similarity: number }>
@@ -44,3 +42,5 @@ async function generateEmbedding(raw: string) {
   const [{ embedding }] = (embeddingData as any).data
   return embedding
 }
+
+
