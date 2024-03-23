@@ -5,7 +5,6 @@ import { type Course } from '@prisma/client'
 import { ratelimit } from '@/lib/utils'
 
 export async function GET(request: Request) {
-
   try {
     const { searchParams } = new URL(request.url)
     const query = searchParams.get('query') as string;
@@ -24,11 +23,9 @@ export async function GET(request: Request) {
       ORDER BY  similarity DESC
       LIMIT 5;
     `
-
-    return course as Array<Course & { similarity: number }>
+    return NextResponse.json(course as Array<Course & { similarity: number }>, { status: 200 });
   } catch (error) {
-    console.error(error)
-    throw error
+    return NextResponse.json({ error }, { status: 500 });
   }
 }
 
