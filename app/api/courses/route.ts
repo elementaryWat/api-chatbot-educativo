@@ -13,7 +13,7 @@ export async function GET(request: Request) {
 
     const embedding = await generateEmbedding(query)
     const vectorQuery = `[${embedding.join(',')}]`
-    const course = await prisma.$queryRaw`
+    const courses = await prisma.$queryRaw`
       SELECT
         id,
         "nombre",
@@ -23,7 +23,7 @@ export async function GET(request: Request) {
       ORDER BY  similarity DESC
       LIMIT 5;
     `
-    return NextResponse.json(course as Array<Course & { similarity: number }>, { status: 200 });
+    return NextResponse.json({ courses: courses as Array<Course & { similarity: number }> }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error }, { status: 500 });
   }
