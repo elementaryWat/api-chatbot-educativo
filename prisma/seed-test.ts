@@ -1,8 +1,9 @@
 import prisma from '../lib/prisma'
+import { type Pokemon } from '@prisma/client'
 import fs from 'fs'
 import { openai } from '../lib/openai'
 import path from 'path'
-import courses from './oferta-cursos.json'
+import pokemon from './pokemon-with-embeddings.json'
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error('process.env.OPENAI_API_KEY is not defined. Please set it.')
@@ -14,36 +15,40 @@ if (!process.env.POSTGRES_URL) {
 
 async function main() {
   try {
-    const course = await prisma.course.findFirst({
+    const pika = await prisma.pokemon.findFirst({
       where: {
-        nombre: 'ACTIVIDADES MUSICALES',
+        name: 'Pikachu',
       },
     })
-    if (course) {
-      console.log('Cursos already seeded!')
+    if (pika) {
+      console.log('Pokédex already seeded!')
       return
     }
   } catch (error) {
-    console.error('Error checking if "Curso" exists in the database.')
+    console.error('Error checking if "Pikachu" exists in the database.')
     throw error
   }
-  for (const record of courses) {
-    const embedding = await generateEmbedding(record.nombre);
-    // const { embedding, ...p } = record
+  for (const record of (pokemon as any).data) {
+    // In order to save time, we'll just use the embeddings we've already generated
+    // for each Pokémon. If you want to generate them yourself, uncomment the
+    // following line and comment out the line after it.
+    // const embedding = await generateEmbedding(p.name);
+    // await new Promise((r) => setTimeout(r, 500)); // Wait 500ms between requests;
+    const { embedding, ...p } = record
 
-    const curso = await prisma.course.create({
-      data: record,
+    // Create the pokemon in the database
+    const pokemon = await prisma.pokemon.create({
+      data: p,
     })
 
     // Add the embedding
     await prisma.$executeRaw`
-        UPDATE courses
+        UPDATE pokemon
         SET embedding = ${embedding}::vector
-        WHERE id = ${curso.id}
+        WHERE id = ${pokemon.id}
     `
 
-    console.log(`Added ${curso.nombre}`)
-    await new Promise((r) => setTimeout(r, 500)); // Wait 500ms between requests;
+    console.log(`Added ${pokemon.number} ${pokemon.name}`)
   }
 
   // Uncomment the following lines if you want to generate the JSON file
@@ -51,7 +56,7 @@ async function main() {
   //   path.join(__dirname, "./pokemon-with-embeddings.json"),
   //   JSON.stringify({ data }, null, 2),
   // );
-  console.log('Cursos seeded successfully!')
+  console.log('Pokédex seeded successfully!')
 }
 main()
   .then(async () => {

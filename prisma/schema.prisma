@@ -1,6 +1,6 @@
 datasource db {
   provider   = "postgresql"
-  url        = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  url        = env("POSTGRES_URL") // uses connection pooling
   directUrl  = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
   extensions = [vector]
 }
@@ -29,4 +29,23 @@ model Pokemon {
   embedding Unsupported("vector(1536)")?
 
   @@map("pokemon")
+}
+
+model Course {
+  id              String  @id @default(cuid())
+  tipoDeCurso     String
+  plan            Int
+  nombre          String
+  nombrePublico   String
+  nivelEducativo  String
+  tipo            String
+  credEd          Int
+  hsSem           Int
+  hsTot           Int
+  cert            String
+  nivel           Int
+
+  embedding Unsupported("vector(1536)")?
+
+  @@map("courses")
 }

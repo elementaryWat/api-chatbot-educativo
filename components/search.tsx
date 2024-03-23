@@ -7,7 +7,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/command'
-import { type Pokemon } from '@prisma/client'
+import { type Course } from '@prisma/client'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useDebounce } from 'use-debounce'
@@ -15,13 +15,13 @@ import { useDebounce } from 'use-debounce'
 export interface SearchProps {
   searchPokedex: (
     content: string
-  ) => Promise<Array<Pokemon & { similarity: number }>>
+  ) => Promise<Array<Course & { similarity: number }>>
 }
 
 export function Search({ searchPokedex }: SearchProps) {
   const [query, setQuery] = useState('')
   const [searchResults, setSearchResults] = useState<
-    Array<Pokemon & { similarity?: number }>
+    Array<Course & { similarity?: number }>
   >([])
   const [debouncedQuery] = useDebounce(query, 150)
   useEffect(() => {
@@ -42,17 +42,17 @@ export function Search({ searchPokedex }: SearchProps) {
       <Command label="Command Menu" shouldFilter={false} className="h-[200px]">
         <CommandInput
           id="search"
-          placeholder="Search for Pokémon"
+          placeholder="Tipo de curso..."
           className="focus:ring-0 sm:text-sm text-base focus:border-0 border-0 active:ring-0 active:border-0 ring-0 outline-0"
           value={query}
           onValueChange={(q) => setQuery(q)}
         />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          {searchResults.map((pokemon) => (
+          {searchResults.map((course) => (
             <CommandItem
-              key={pokemon.id}
-              value={pokemon.name}
+              key={course.id}
+              value={course.nombre}
               className="data-[selected='true']:bg-zinc-50  flex items-center justify-between py-3"
               onSelect={(p) => {
                 console.log(p)
@@ -62,14 +62,14 @@ export function Search({ searchPokedex }: SearchProps) {
               <div className="flex items-center space-x-4">
                 <div className="space-y-1">
                   <p className="text-sm text-gray-500">
-                    {pokemon.name.substring(0, 90)}
+                    {course.nombre.substring(0, 90)}
                   </p>
                 </div>
               </div>
               <div className="text-sm text-gray-500">
-                {pokemon.similarity ? (
+                {course.similarity ? (
                   <div className="text-xs font-mono p-0.5 rounded bg-zinc-100">
-                    {pokemon.similarity.toFixed(3)}
+                    {course.similarity.toFixed(3)}
                   </div>
                 ) : (
                   <div />

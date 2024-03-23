@@ -2,12 +2,12 @@
 
 import prisma from '@/lib/prisma'
 import { openai } from '@/lib/openai'
-import { type Pokemon } from '@prisma/client'
+import { type Course } from '@prisma/client'
 import { ratelimit } from '@/lib/utils'
 
 export async function searchPokedex(
   query: string
-): Promise<Array<Pokemon & { similarity: number }>> {
+): Promise<Array<Course & { similarity: number }>> {
   try {
     if (query.trim().length === 0) return []
 
@@ -19,15 +19,15 @@ export async function searchPokedex(
     const pokemon = await prisma.$queryRaw`
       SELECT
         id,
-        "name",
+        "nombre",
         1 - (embedding <=> ${vectorQuery}::vector) as similarity
-      FROM pokemon
+      FROM courses
       where 1 - (embedding <=> ${vectorQuery}::vector) > .5
       ORDER BY  similarity DESC
       LIMIT 8;
     `
 
-    return pokemon as Array<Pokemon & { similarity: number }>
+    return pokemon as Array<Course & { similarity: number }>
   } catch (error) {
     console.error(error)
     throw error
