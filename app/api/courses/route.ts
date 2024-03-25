@@ -15,10 +15,10 @@ export async function GET(request: Request) {
     const vectorQuery = `[${embedding.join(',')}]`
     const courses = await prisma.$queryRaw`
       SELECT
-        "nombre",
+        "nombre", "nivelEducativo", "hsSem", "tipo", 
         1 - (embedding <=> ${vectorQuery}::vector) as similarity
       FROM courses
-      where 1 - (embedding <=> ${vectorQuery}::vector) > .5
+      where 1 - (embedding <=> ${vectorQuery}::vector) > .8
       ORDER BY  similarity DESC
       LIMIT 5;
     `
