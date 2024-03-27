@@ -8,6 +8,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const query = searchParams.get('query') as string;
+    const nivel = searchParams.get('nivel') as string;
     const { success } = await ratelimit.limit('generations')
     if (!success) throw new Error('Rate limit exceeded')
 
@@ -15,11 +16,13 @@ export async function GET(request: Request) {
     const vectorQuery = `[${embedding.join(',')}]`
     const courses = await prisma.$queryRaw`
       SELECT
-        "nombre", "nivelEducativo", "hsSem", "tipo", 
-        1 - (embedding <=> ${vectorQuery}::vector) as similarity
+      "nombre", "nivelEducativo", "hsSem", "tipo", 
+      1 - (embedding <=> ${vectorQuery}::vector) as similarity
       FROM courses
-      where 1 - (embedding <=> ${vectorQuery}::vector) > .8
-      ORDER BY  similarity DESC
+      WHERE 1 - (embedding <=> ${vectorQuery}::vector) >= .8
+      AND "nivel" <= ${Number(nivel)}
+      AND "nivel" > 0
+      ORDER BY similarity DESC
       LIMIT 5;
     `
     return NextResponse.json({ courses: courses as Array<Course & { similarity: number }> }, { status: 200 });
