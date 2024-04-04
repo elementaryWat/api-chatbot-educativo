@@ -44,6 +44,8 @@ model Course {
   hsTot           Int
   cert            String
   nivel           Int
+  url             String?
+  descripcion     String?
 
   embedding Unsupported("vector(1536)")?
 

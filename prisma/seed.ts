@@ -13,36 +13,69 @@ if (!process.env.POSTGRES_URL) {
 }
 
 async function main() {
-  try {
-    const course = await prisma.course.findFirst({
-      where: {
-        nombre: 'ACTIVIDADES MUSICALES',
-      },
-    })
-    if (course) {
-      console.log('Cursos already seeded!')
-      return
-    }
-  } catch (error) {
-    console.error('Error checking if "Curso" exists in the database.')
-    throw error
-  }
+  // try {
+  //   const course = await prisma.course.findFirst({
+  //     where: {
+  //       nombre: 'ACTIVIDADES MUSICALES',
+  //     },
+  //   })
+  //   if (course) {
+  //     console.log('Cursos already seeded!')
+  //     return
+  //   }
+  // } catch (error) {
+  //   console.error('Error checking if "Curso" exists in the database.')
+  //   throw error
+  // }
   for (const record of courses) {
-    const embedding = await generateEmbedding(record.nombre);
+    const embedding = await generateEmbedding(`${record.nombre}: ${record.descripcionCorta}`);
     // const { embedding, ...p } = record
 
-    const curso = await prisma.course.create({
-      data: record,
-    })
+    let curso;
+    if (record.descripcion) {
+      const { descripcion, descripcionCorta, ...dataWithoutDescripcion } = record;
+      curso = await prisma.course.create({
+        data: {
+          ...dataWithoutDescripcion,
+          descripcion: descripcionCorta,
+        },
+      });
+    } else {
+      curso = await prisma.course.create({
+        data: record,
+      });
+    }
+
+
+    // Find the course with the id of the record
+    // const curso = await prisma.course.findFirst({
+    //   where: {
+    //     nombre: record.nombre,
+    //   },
+    // })
+
 
     // Add the embedding
     await prisma.$executeRaw`
-        UPDATE courses
-        SET embedding = ${embedding}::vector
-        WHERE id = ${curso.id}
+      UPDATE courses
+      SET embedding = ${embedding}::vector
+      WHERE id = ${curso?.id}
     `
 
-    console.log(`Added ${curso.nombre}`)
+    console.log(`Added ${curso?.nombre}`)
+
+    // Update courses with url and descripcion fields defined
+    // if (record.url && record.descripcion) {
+    //   await prisma.course.update({
+    //     where: {
+    //       id: curso?.id,
+    //     },
+    //     data: {
+    //       url: record.url,
+    //       descripcion: record.descripcionCorta,
+    //     },
+    //   })
+    // }
     await new Promise((r) => setTimeout(r, 500)); // Wait 500ms between requests;
   }
 
