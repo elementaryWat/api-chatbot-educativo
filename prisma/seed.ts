@@ -13,20 +13,20 @@ if (!process.env.POSTGRES_URL) {
 }
 
 async function main() {
-  // try {
-  //   const course = await prisma.course.findFirst({
-  //     where: {
-  //       nombre: 'ACTIVIDADES MUSICALES',
-  //     },
-  //   })
-  //   if (course) {
-  //     console.log('Cursos already seeded!')
-  //     return
-  //   }
-  // } catch (error) {
-  //   console.error('Error checking if "Curso" exists in the database.')
-  //   throw error
-  // }
+  try {
+    const course = await prisma.course.findFirst({
+      where: {
+        nombre: 'ACTIVIDADES MUSICALES',
+      },
+    })
+    if (course) {
+      console.log('Cursos already seeded!')
+      return
+    }
+  } catch (error) {
+    console.error('Error checking if "Curso" exists in the database.')
+    throw error
+  }
   for (const record of courses) {
     const embedding = await generateEmbedding(`${record.nombre}: ${record.descripcionCorta}`);
     // const { embedding, ...p } = record

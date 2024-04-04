@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     const vectorQuery = `[${embedding.join(',')}]`
     const courses = await prisma.$queryRaw`
       SELECT
-      "nombre", "nivelEducativo", "hsSem", "tipo", 
+      "nombre", "nivelEducativo", "url", "descripcion", 
       1 - (embedding <=> ${vectorQuery}::vector) as similarity
       FROM courses
       WHERE 1 - (embedding <=> ${vectorQuery}::vector) >= .8
