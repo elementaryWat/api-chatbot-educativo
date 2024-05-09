@@ -32,22 +32,40 @@ model Pokemon {
 }
 
 model Course {
-  id              String  @id @default(cuid())
-  tipoDeCurso     String
-  plan            Int
-  nombre          String
-  nombrePublico   String
-  nivelEducativo  String
-  tipo            String
-  credEd          Int
-  hsSem           Int
-  hsTot           Int
-  cert            String
-  nivel           Int
-  url             String?
-  descripcion     String?
+  id                String    @id @default(cuid())
+  tipoDeCurso       String
+  plan              Int
+  nombre            String
+  nombrePublico     String
+  nivelEducativo    String
+  tipo              String
+  creditosEducativos Int
+  horasSemanales    Int
+  horasTotales      Int
+  certificacion     String
+  nivel             Int
+  url               String?
+  descripcion       String?
 
-  embedding Unsupported("vector(1536)")?
+  ubicaciones       Int[]
+
+  embedding         Unsupported("vector(1536)")?
 
   @@map("courses")
+}
+
+
+model School {
+  id            String  @id @default(cuid())
+  codigo        Int
+  nombre        String
+  calle         String
+  nro           Int
+  departamento  String
+  localidad     String
+  latitud       Float
+  longitud      Float
+  vigente       String
+
+  @@map("schools")
 }

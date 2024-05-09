@@ -28,31 +28,13 @@ async function main() {
     throw error
   }
   for (const record of courses) {
-    const embedding = await generateEmbedding(`${record.nombre}: ${record.descripcionCorta}`);
-    // const { embedding, ...p } = record
+    const embedding = await generateEmbedding(`${record.nombre}: ${record.descripcion}`);
 
     let curso;
-    if (record.descripcion) {
-      const { descripcion, descripcionCorta, ...dataWithoutDescripcion } = record;
-      curso = await prisma.course.create({
-        data: {
-          ...dataWithoutDescripcion,
-          descripcion: descripcionCorta,
-        },
-      });
-    } else {
-      curso = await prisma.course.create({
-        data: record,
-      });
-    }
-
-
-    // Find the course with the id of the record
-    // const curso = await prisma.course.findFirst({
-    //   where: {
-    //     nombre: record.nombre,
-    //   },
-    // })
+    curso = await prisma.course.create({
+      data: record,
+    });
+    (record as any).embedding = embedding;
 
 
     // Add the embedding
@@ -64,26 +46,14 @@ async function main() {
 
     console.log(`Added ${curso?.nombre}`)
 
-    // Update courses with url and descripcion fields defined
-    // if (record.url && record.descripcion) {
-    //   await prisma.course.update({
-    //     where: {
-    //       id: curso?.id,
-    //     },
-    //     data: {
-    //       url: record.url,
-    //       descripcion: record.descripcionCorta,
-    //     },
-    //   })
-    // }
     await new Promise((r) => setTimeout(r, 500)); // Wait 500ms between requests;
   }
 
   // Uncomment the following lines if you want to generate the JSON file
-  // fs.writeFileSync(
-  //   path.join(__dirname, "./pokemon-with-embeddings.json"),
-  //   JSON.stringify({ data }, null, 2),
-  // );
+  fs.writeFileSync(
+    path.join(__dirname, "./courses-with-embeddings.json"),
+    JSON.stringify({ data: courses }, null, 2),
+  );
   console.log('Cursos seeded successfully!')
 }
 main()
