@@ -20,7 +20,6 @@ export async function GET(request: Request) {
             c.id,
             c.nombre,
             c.url,
-            c.nivelEducativo,
             c.descripcion,
             1 - (c.embedding <=> ${vectorQuery}::vector) as similarity
         FROM courses c
@@ -34,7 +33,6 @@ export async function GET(request: Request) {
         tc.id,
         tc.nombre,
         tc.url,
-        tc.nivelEducativo,
         tc.descripcion,
         tc.similarity,
         array(
