@@ -9,6 +9,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const query = searchParams.get('query') as string;
     const nivel = searchParams.get('nivel') as string;
+    const latitud = searchParams.get('latitud') as string || '-34.899054';
+    const longitud = searchParams.get('longitud') as string || '-56.187810';
     const { success } = await ratelimit.limit('generations')
     if (!success) throw new Error('Rate limit exceeded')
 
@@ -45,7 +47,7 @@ export async function GET(request: Request) {
             FROM schools s
             JOIN courses c ON s.codigo = ANY(c.ubicaciones)
             WHERE c.id = tc.id
-            ORDER BY ST_Distance(s.location, ST_SetSRID(ST_MakePoint(-34.790775, -55.921293), 4326)::geography) ASC
+            ORDER BY ST_Distance(s.location, ST_SetSRID(ST_MakePoint(${Number(latitud)}, ${Number(longitud)}), 4326)::geography) ASC
             LIMIT 5
         ) AS closest_locations
     FROM TopCourses tc;
