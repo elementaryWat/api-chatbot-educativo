@@ -42,7 +42,9 @@ export async function GET(request: Request) {
                 'nombre', s.nombre,
                 'departamento', s.departamento,
                 'localidad', s.localidad,
-                'calle', s.calle
+                'calle', s.calle,
+                'latitud', s.latitud,
+                'longitud', s.longitud
             )
             FROM schools s
             JOIN courses c ON s.codigo = ANY(c.ubicaciones)
